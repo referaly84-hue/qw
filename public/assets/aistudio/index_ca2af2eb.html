@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вирт РПЛ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8eee9;--panel:#fbfdfb;--ink:#10261c;--green:#1b5c3f;--green2:#2f7d55;--deep:#0d2f21;--yellow:#f0c419;--red:#d3342b;--muted:#5b7064;--line:#cdd9d0;--soft:#eff4f0;--chalk:#e9f2ea}
+*{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Onest,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+header.top{position:sticky;top:0;z-index:20;background:var(--deep);color:#fff;border-bottom:4px solid var(--yellow)}
+.bar{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font:700 18px Unbounded,sans-serif;color:#fff;letter-spacing:.01em}
+.brand:hover{text-decoration:none}
+nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+nav a{color:#cfe3d6;padding:6px 11px;border-radius:6px;font-weight:500}
+nav a:hover{background:#ffffff1a;text-decoration:none}
+nav a.on{background:var(--chalk);color:var(--deep)}
+.who{font-size:13px;color:#cfe3d6;display:flex;gap:10px;align-items:center}
+.who button{background:#ffffff1f;border:0;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer}
+main{max-width:1120px;margin:0 auto;padding:18px 16px 60px}
+h1{font:700 24px Unbounded,sans-serif;margin:6px 0 16px;letter-spacing:-.01em}
+h2{font:600 17px Onest;margin:22px 0 10px}
+h3{font:600 15px Onest;margin:0 0 8px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+.muted{color:var(--muted)}.small{font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+.btn{background:var(--green);color:#fff;border:0;border-radius:6px;padding:8px 14px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--green2)}.btn:disabled{opacity:.5;cursor:default}
+.btn.alt{background:var(--soft);color:var(--ink);border:1px solid var(--line)}.btn.alt:hover{background:var(--chalk)}
+.btn.red{background:var(--red)}.btn.sm{padding:4px 9px;font-size:13px}
+input,select,textarea{background:#fff;border:1px solid #b9c8be;border-radius:6px;padding:8px 10px;width:100%}
+textarea{min-height:90px;resize:vertical}
+label{display:block;font-weight:600;font-size:13px;margin:10px 0 4px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 14px;border-bottom:2px solid var(--line)}
+.tabs button{background:none;border:0;padding:8px 13px;cursor:pointer;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
+.tabs button.on{color:var(--deep);border-bottom-color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:12.5px}
+th.s{cursor:pointer}th.s:hover{color:var(--ink)}
+td:first-child,th:first-child,td.l,th.l{text-align:left}
+tr:hover td{background:var(--soft)}
+.wrap{overflow-x:auto}
+.pos{width:32px;color:var(--muted)}
+.zone-top td:first-child{box-shadow:inset 4px 0 var(--green2)}.zone-bad td:first-child{box-shadow:inset 4px 0 var(--red)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--soft);border:1px solid var(--line);color:var(--muted)}
+.tag.live{background:var(--red);border-color:var(--red);color:#fff}
+.tag.derby{background:var(--yellow);border-color:var(--yellow);color:#3b3000}
+.tag.bg{background:transparent}
+.fx{display:grid;grid-template-columns:96px 1fr 70px 1fr 96px;gap:8px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line)}
+.fx:last-child{border:0}.fx .d{font-size:13px;color:var(--muted)}.fx .t{font-weight:600}.fx .t.r{text-align:right}
+.fx .sc{text-align:center;font:700 16px Unbounded,sans-serif}
+a.fxl{color:inherit}a.fxl:hover{background:var(--soft);text-decoration:none}
+@media(max-width:640px){.fx{grid-template-columns:1fr 60px 1fr}.fx .d{grid-column:1/-1}.fx .x{display:none}}
+.score{background:var(--deep);color:#fff;border-radius:10px;padding:22px 18px;margin-bottom:16px;position:relative;overflow:hidden}
+.score:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,#ffffff08 0 60px,transparent 60px 120px)}
+.score>*{position:relative}
+.score .meta{font-size:13px;color:#b8d2c1;text-align:center}
+.score .line{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:10px 0}
+.score .tm{font:700 20px Unbounded,sans-serif}.score .tm.r{text-align:right}
+.score .num{font:700 46px Unbounded,sans-serif;letter-spacing:.04em;background:#00000040;padding:4px 18px;border-radius:8px}
+@media(max-width:640px){.score .tm{font-size:14px}.score .num{font-size:32px;padding:4px 10px}}
+.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:6px;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}@media(prefers-reduced-motion:reduce){.live-dot{animation:none}}
+.ev{display:grid;grid-template-columns:54px 28px 1fr;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line)}
+.ev .m{font:600 13px Onest;color:var(--muted)}
+.ev.key{background:#fff8d8;border-left:4px solid var(--yellow);padding-left:8px}
+.ev.goal{background:#e3f4e8;border-left:4px solid var(--green2);padding-left:8px;font-weight:600}
+.ev.red{background:#fde8e6;border-left:4px solid var(--red);padding-left:8px}
+.ev .pl{font-size:12.5px;color:var(--muted)}
+.bar2{display:grid;grid-template-columns:54px 1fr 54px;gap:10px;align-items:center;margin:9px 0}
+.bar2 .v{font-weight:700}.bar2 .v:last-child{text-align:right}
+.bar2 .c{text-align:center;font-size:13px;color:var(--muted)}
+.bar2 .bb{display:flex;height:7px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:3px}
+.bar2 .bb i{display:block;background:var(--green2)}.bar2 .bb i+i{background:var(--yellow)}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--deep);color:#fff;padding:11px 18px;border-radius:8px;z-index:60;max-width:90vw}
+.toast.err{background:var(--red)}
+.modal{position:fixed;inset:0;background:#0d2f2199;z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:30px 12px;overflow:auto}
+.modal>div{background:var(--panel);border-radius:10px;padding:20px;max-width:640px;width:100%}
+.chip{display:inline-flex;align-items:center;gap:5px;background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:2px 7px;font-size:13px}
+.pick{display:grid;grid-template-columns:34px 1fr 118px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.pick select{padding:4px 6px}
+.pick.off{opacity:.5}
+.sug{position:relative}.sug .list{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #b9c8be;border-radius:6px;z-index:5;max-height:260px;overflow:auto}
+.sug .list div{padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--line)}.sug .list div:hover{background:var(--soft)}
+.warn{background:#fff6d6;border:1px solid #e7d27a;border-radius:6px;padding:8px 12px;font-size:14px}
+.code{font:600 14px ui-monospace,Consolas,monospace;background:var(--soft);padding:2px 6px;border-radius:4px}
+.qa{background:var(--soft);border-radius:6px;padding:12px;white-space:pre-wrap;margin-top:10px}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar">
+  <a class="brand" href="#/">Вирт РПЛ</a>
+  <nav id="nav"></nav>
+  <div class="who" id="who"></div>
+</div></header>
+<main id="app"><div class="empty">Загрузка…</div></main>
+
+<script>
+'use strict';
+const S = { tok: localStorage.getItem('tok') || '', me: null, st: null, es: null };
+const $ = (s, r = document) => r.querySelector(s);
+const e = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+async function api(p, body) {
+  const r = await fetch('/api' + p, { method: body !== undefined ? 'POST' : 'GET', headers: { 'content-type': 'application/json', 'x-token': S.tok }, body: body !== undefined ? JSON.stringify(body) : undefined });
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Ошибка ' + r.status); return j;
+}
+function toast(m, err) { const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = m; document.body.append(d); setTimeout(() => d.remove(), err ? 5000 : 2600); }
+async function act(fn, ok) { try { const r = await fn(); if (ok) toast(typeof ok === 'function' ? ok(r) : ok); return r; } catch (x) { toast(x.message, true); } }
+function modal(html, mount) { const m = document.createElement('div'); m.className = 'modal'; m.innerHTML = '<div>' + html + '</div>'; m.addEventListener('mousedown', ev => { if (ev.target === m) m.remove(); }); document.body.append(m); mount && mount(m); return m; }
+const fmtD = d => { try { return new Date(d + 'T12:00:00').toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' }); } catch { return d; } };
+const teamName = id => (S.st.teams.find(t => t.id === id) || {}).name || '?';
+const compName = id => (S.st.comps.find(c => c.id === id) || {}).name || id;
+const age = (b, d) => { const y = parseInt(String(b || '').slice(0, 4)); return y ? (+String(d || new Date().toISOString()).slice(0, 4) - y) : ''; };
+
+/* ───── каркас ───── */
+async function boot() {
+  try { S.st = await api('/state'); } catch (x) { $('#app').innerHTML = '<div class="empty">Сервер недоступен: ' + e(x.message) + '</div>'; return; }
+  S.me = S.st.me; if (S.tok && !S.me) { S.tok = ''; localStorage.removeItem('tok'); }
+  drawChrome(); route();
+}
+function drawChrome() {
+  const links = [['#/', 'Главная'], ['#/table/rpl', 'Таблицы'], ['#/fixtures/rpl', 'Расписание'], ['#/leaders', 'Статистика']];
+  if (S.me?.role === 'club') links.push(['#/club', 'Мой клуб']); if (S.me?.role === 'admin') links.push(['#/club', 'Клуб'], ['#/admin', 'Админка']);
+  const cur = location.hash || '#/';
+  $('#nav').innerHTML = links.map(([h, t]) => `<a href="${h}" class="${cur.split('/')[1] === h.split('/')[1] && (h !== '#/' || cur === '#/' || cur === '#') ? 'on' : ''}">${t}</a>`).join('');
+  $('#who').innerHTML = S.me ? `<span>${S.me.role === 'admin' ? 'Администратор' : e(teamName(S.me.teamId))}</span><button id="out">Выйти</button>` : '<a href="#/login" style="color:#fff;font-weight:600">Войти по коду</a>';
+  $('#out') && ($('#out').onclick = async () => { await api('/logout', {}).catch(() => { }); S.tok = ''; localStorage.removeItem('tok'); S.me = null; S.st.me = null; drawChrome(); location.hash = '#/'; });
+}
+window.addEventListener('hashchange', () => { drawChrome(); route(); });
+function route() {
+  if (S.es) { S.es.close(); S.es = null; }
+  const [, page, a, b] = (location.hash || '#/').split('/'); const app = $('#app'); scrollTo(0, 0);
+  const R = { '': pgHome, undefined: pgHome, table: pgTable, fixtures: pgFixtures, match: pgMatch, leaders: pgLeaders, club: pgClub, admin: pgAdmin, login: pgLogin };
+  (R[page] || pgHome)(app, a, b).catch(x => { app.innerHTML = `<div class="panel warn">${e(x.message)}</div>`; });
+}
+const fxRow = f => {
+  const sc = f.status === 'scheduled' || f.status === 'queued' || f.status === 'generating' ? f.time : `${f.hg}:${f.ag}`;
+  const link = f.full || f.status === 'live' || f.status === 'done';
+  const st = f.status === 'live' ? '<span class="tag live">LIVE</span>' : f.status === 'generating' || f.status === 'queued' ? '<span class="tag">готовится</span>' : '';
+  return `<${link && f.full ? `a href="#/match/${f.id}" class="fxl"` : 'div'} class="fx${link && f.full ? ' fxl' : ''}">
+  <div class="d">${fmtD(f.date)}${f.status === 'scheduled' ? '' : ' · ' + f.time}</div><div class="t r">${e(f.homeName)}</div>
+  <div class="sc">${sc}</div><div class="t">${e(f.awayName)}</div>
+  <div class="x row" style="justify-content:flex-end;gap:5px">${f.derby ? '<span class="tag derby">дерби</span>' : ''}${st}${f.pen ? `<span class="tag">пен. ${f.pen.hg}:${f.pen.ag}</span>` : ''}</div></${link && f.full ? 'a' : 'div'}>`;
+};
+const tableHtml = (rows, opts = {}) => `<div class="wrap"><table><thead><tr><th class="l">Команда</th><th>И</th><th>В</th><th>Н</th><th>П</th><th>Мячи</th><th>РМ</th><th>О</th><th class="l">Форма</th></tr></thead><tbody>${rows.map(r => `<tr class="${r.pos <= (opts.top || 0) ? 'zone-top' : r.pos > rows.length - (opts.bad || 0) ? 'zone-bad' : ''}"><td><span class="pos">${r.pos}</span> ${e(r.name)}</td><td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${r.gf}–${r.ga}</td><td>${r.gd > 0 ? '+' : ''}${r.gd}</td><td><b>${r.pts}</b></td><td class="l muted">${e(r.form)}</td></tr>`).join('')}</tbody></table></div>`;
+
+/* ───── вход ───── */
+async function pgLogin(app) {
+  app.innerHTML = `<h1>Вход</h1><div class="panel" style="max-width:420px"><label>Код клуба или администратора</label><input id="code" placeholder="XXXX-XXXX" autocomplete="off"><div class="row" style="margin-top:14px"><button class="btn" id="go">Войти</button></div><p class="muted small">Код клуба вам выдаёт администратор.</p></div>`;
+  const go = async () => { const r = await act(() => api('/login', { code: $('#code').value })); if (!r) return; S.tok = r.token; localStorage.setItem('tok', r.token); S.st = await api('/state'); S.me = S.st.me; drawChrome(); location.hash = r.role === 'admin' ? '#/admin' : '#/club'; };
+  $('#go').onclick = go; $('#code').onkeydown = ev => ev.key === 'Enter' && go(); $('#code').focus();
+}
+
+/* ───── главная ───── */
+async function pgHome(app) {
+  const [fx, tb] = await Promise.all([api('/fixtures?comp=rpl'), api('/table/rpl')]);
+  const live = fx.filter(f => f.status === 'live'), next = fx.filter(f => f.status === 'scheduled').slice(0, 6), last = fx.filter(f => f.status === 'done').slice(-6).reverse();
+  app.innerHTML = `<h1>Сезон ${e(S.st.season)}</h1>
+  ${live.length ? `<div class="panel"><h3><span class="live-dot"></span>Сейчас идут</h3>${live.map(fxRow).join('')}</div>` : ''}
+  <div class="grid g2"><div>
+    <div class="panel"><h3>Ближайшие матчи РПЛ</h3>${next.length ? next.map(fxRow).join('') : '<div class="empty">Расписание ещё не создано или сезон завершён.</div>'}</div>
+    <div class="panel"><h3>Последние результаты</h3>${last.length ? last.map(fxRow).join('') : '<div class="empty">Матчей пока не было.</div>'}</div></div>
+    <div class="panel"><h3>Таблица РПЛ</h3>${tb.some(r => r.p) || tb.length ? tableHtml(tb, { top: 3, bad: 2 }) : '<div class="empty">Нет команд</div>'}<p class="small"><a href="#/table/rpl">Все таблицы →</a></p></div></div>`;
+  if (live.length) { const t = setTimeout(() => location.hash === '#/' && pgHome(app), 12000); }
+}
+async function pgTable(app, comp = 'rpl') {
+  const rows = await api('/table/' + comp);
+  const cf = comp === 'cup' ? await api('/fixtures?comp=cup') : null;
+  app.innerHTML = `<h1>Таблицы</h1><div class="tabs">${S.st.comps.map(c => `<button class="${c.id === comp ? 'on' : ''}" data-c="${c.id}">${e(c.name)}</button>`).join('')}</div>
+  ${comp === 'cup' ? (cf.length ? [...new Set(cf.map(f => f.label))].map(l => `<div class="panel"><h3>${e(l)}</h3>${cf.filter(f => f.label === l).map(fxRow).join('')}</div>`).join('') : '<div class="empty">Сетка кубка появится после создания сезона.</div>') : `<div class="panel">${rows.length ? tableHtml(rows, comp === 'rpl' ? { top: 3, bad: 2 } : {}) : '<div class="empty">В этом турнире нет команд.</div>'}</div>`}`;
+  app.querySelectorAll('[data-c]').forEach(b => b.onclick = () => location.hash = '#/table/' + b.dataset.c);
+}
+async function pgFixtures(app, comp = 'rpl', round) {
+  const all = await api('/fixtures?comp=' + comp); const rounds = [...new Set(all.map(f => f.label))];
+  let cur = round ? decodeURIComponent(round) : (all.find(f => f.status !== 'done') || all[all.length - 1] || {}).label;
+  const list = all.filter(f => f.label === cur), i = rounds.indexOf(cur);
+  app.innerHTML = `<h1>Расписание</h1><div class="tabs">${S.st.comps.map(c => `<button class="${c.id === comp ? 'on' : ''}" data-c="${c.id}">${e(c.name)}</button>`).join('')}</div>
+  ${all.length ? `<div class="row sp" style="margin-bottom:10px"><button class="btn alt sm" id="pv" ${i <= 0 ? 'disabled' : ''}>← Назад</button><b>${e(cur)}</b><button class="btn alt sm" id="nx" ${i >= rounds.length - 1 ? 'disabled' : ''}>Вперёд →</button></div><div class="panel">${list.map(fxRow).join('')}</div>` : '<div class="empty panel">Расписание ещё не создано — администратор сделает это в разделе «Админка».</div>'}`;
+  app.querySelectorAll('[data-c]').forEach(b => b.onclick = () => location.hash = '#/fixtures/' + b.dataset.c);
+  $('#pv') && ($('#pv').onclick = () => location.hash = `#/fixtures/${comp}/${encodeURIComponent(rounds[i - 1])}`); $('#nx') && ($('#nx').onclick = () => location.hash = `#/fixtures/${comp}/${encodeURIComponent(rounds[i + 1])}`);
+}
+
+/* ───── матч ───── */
+const EVI = { goal: '⚽', own_goal: '⚽', yellow: '🟨', red: '🟥', injury: '🚑', penalty: '🎯', var: '📺', ref_error: '🧑‍⚖️', halftime: '⏸', fulltime: '🏁', highlight: '🔥', incident: '❗', save: '🧤', post: '🥅', sub: '🔁', corner: '🚩', foul: '✋', shot: '💥', miss: '↗', tackle: '🛡', kickoff: '▶', offside: '🚫', freekick: '🎯', possession: '·', pass: '·', dribble: '·', duel: '·' };
+let M = null, evs = [], mtab = 'live';
+async function pgMatch(app, id) {
+  M = await api('/match/' + id); evs = M.events.slice();
+  if (!M.fixture) return; mtab = M.fixture.status === 'done' ? 'live' : 'live';
+  drawMatch(app, id);
+  if (M.fixture.status === 'live') {
+    S.es = new EventSource('/api/live/' + id);
+    S.es.onmessage = m => { const d = JSON.parse(m.data); if (d.type === 'event') { if (!evs.some(x => x.i === d.e.i)) evs.push(d.e); M.fixture.hg = d.e.score[0]; M.fixture.ag = d.e.score[1]; paintMatch(); if (['goal', 'red', 'yellow'].includes(d.e.type)) refreshStats(id); } else if (d.type === 'end') { api('/match/' + id).then(x => { M = x; evs = x.events.slice(); drawMatch(app, id); }); S.es.close(); } };
+  }
+  if (M.fixture.status === 'scheduled' || M.fixture.status === 'queued' || M.fixture.status === 'generating') { const t = setInterval(async () => { if (!location.hash.includes(id)) return clearInterval(t); const x = await api('/match/' + id); if (x.fixture.status !== M.fixture.status) { clearInterval(t); pgMatch(app, id); } }, 4000); }
+}
+async function refreshStats(id) { try { const x = await api('/match/' + id); M.stats = x.stats; if (mtab === 'stats') paintMatch(); } catch { } }
+function drawMatch(app, id) {
+  const f = M.fixture, c = M.ctx;
+  app.innerHTML = `<div class="score"><div class="meta">${e(c ? c.comp + ', ' + c.roundLabel : f.label)} · ${fmtD(f.date)} ${f.time}${c && c.stadium ? ' · ' + e(c.stadium) : ''}</div>
+  <div class="line"><div class="tm r">${e(f.homeName)}</div><div class="num" id="sc">${f.hg == null ? '—' : f.hg + ' : ' + f.ag}</div><div class="tm">${e(f.awayName)}</div></div>
+  <div class="meta" id="sub">${f.status === 'live' ? '<span class="live-dot"></span>Идёт матч' : f.status === 'done' ? 'Матч завершён' + (f.pen ? ` · по пенальти ${f.pen.hg}:${f.pen.ag}` : '') : f.status === 'generating' || f.status === 'queued' ? 'Матч готовится…' : 'Матч ещё не начался'}</div>
+  ${c ? `<div class="meta" style="margin-top:6px">${e(c.weather)}${c.derby && c.derby !== 'нет' ? ' · ' + e(c.derby.split('.')[0]) : ''}</div>` : ''}</div>
+  <div class="tabs" id="mt">${[['live', 'Трансляция'], ['stats', 'Статистика'], ['lineups', 'Составы'], ...(S.me?.role === 'admin' ? [['admin', 'Админ']] : [])].map(([k, t]) => `<button data-k="${k}" class="${k === mtab ? 'on' : ''}">${t}</button>`).join('')}</div><div id="mbody"></div>`;
+  $('#mt').onclick = ev => { const k = ev.target.dataset.k; if (k) { mtab = k; document.querySelectorAll('#mt button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); paintMatch(); } };
+  paintMatch();
+}
+function paintMatch() {
+  const f = M.fixture; $('#sc') && ($('#sc').textContent = f.hg == null ? '—' : f.hg + ' : ' + f.ag); const b = $('#mbody'); if (!b) return;
+  if (mtab === 'live') {
+    if (!evs.length) { b.innerHTML = `<div class="empty panel">${f.status === 'scheduled' ? 'Трансляция начнётся, когда админ запустит матч.' : 'Ждём первые события…'}</div>`; return; }
+    b.innerHTML = '<div class="panel">' + [...evs].reverse().map(x => { const cls = x.type === 'goal' || x.type === 'own_goal' ? 'goal' : x.type === 'red' ? 'red' : ['yellow', 'injury', 'penalty', 'var', 'ref_error', 'highlight', 'incident', 'halftime', 'fulltime'].includes(x.type) ? 'key' : ''; return `<div class="ev ${cls}"><div class="m">${x.min}:${String(x.sec).padStart(2, '0')}</div><div>${EVI[x.type] || '·'}</div><div>${e(x.text)}${cls && x.players?.length ? `<div class="pl">${e(x.players.join(', '))}</div>` : ''}${x.type === 'goal' || x.type === 'own_goal' ? `<div class="pl"><b>${x.score[0]}:${x.score[1]}</b></div>` : ''}</div></div>`; }).join('') + '</div>';
+  } else if (mtab === 'stats') {
+    const s = M.stats; if (!s) { b.innerHTML = '<div class="empty panel">Статистика появится после начала матча.</div>'; return; }
+    const H = s.teams.home, A = s.teams.away; const bar = (n, h, a) => { const t = (+h + +a) || 1; return `<div class="bar2"><div class="v">${h}</div><div><div class="c">${n}</div><div class="bb"><i style="width:${h / t * 100}%"></i><i style="width:${a / t * 100}%"></i></div></div><div class="v">${a}</div></div>`; };
+    const pl = Object.values(s.players).sort((a, b) => b.min - a.min);
+    b.innerHTML = `<div class="panel">${bar('Владение, %', s.poss[0], s.poss[1])}${bar('Удары', H.sh, A.sh)}${bar('В створ', H.sot, A.sot)}${bar('xG', H.xg, A.xg)}${bar('Угловые', H.co, A.co)}${bar('Фолы', H.fo, A.fo)}${bar('Отборы', H.tk, A.tk)}${bar('Сейвы', H.sv, A.sv)}${bar('Офсайды', H.off, A.off)}${bar('Жёлтые', H.yc, A.yc)}${bar('Красные', H.rc, A.rc)}${bar('Пенальти (назначено)', H.penF, A.penF)}${bar('Ошибки судьи в пользу', H.refF, A.refF)}</div>
+    <div class="panel wrap"><table><thead><tr><th class="l">Игрок</th><th>Мин</th><th>Г</th><th>П</th><th>Уд</th><th>xG</th><th>Отб</th><th>Сейвы</th><th>Фолы</th><th>ЖК</th><th>КК</th></tr></thead><tbody>${pl.map(p => `<tr><td>${e(p.n)} <span class="muted small">${p.side === 'home' ? e(M.fixture.homeName) : e(M.fixture.awayName)}</span></td><td>${p.min}</td><td>${p.g}</td><td>${p.a}</td><td>${p.sh}</td><td>${p.xg}</td><td>${p.tk}</td><td>${p.sv}</td><td>${p.ff}/${p.fa}</td><td>${p.yc}</td><td>${p.rc}</td></tr>`).join('')}</tbody></table></div>`;
+  } else if (mtab === 'lineups') {
+    const L = M.lineups; if (!L) { b.innerHTML = '<div class="empty panel">Составы откроются после начала матча.</div>'; return; }
+    b.innerHTML = '<div class="grid g2">' + ['home', 'away'].map(s => `<div class="panel"><h3>${e(L[s].name)} · ${e(L[s].formation)}</h3>${L[s].starters.map(p => `<div>${e(p.pos)} ${e(p.name)}</div>`).join('')}<h3 style="margin-top:12px">Скамейка</h3><div class="muted small">${L[s].bench.map(p => e(p.name)).join(', ') || '—'}</div><h3 style="margin-top:12px">Речь тренера</h3><div class="qa">${e(L[s].speech || '(молчание)')}</div>${L[s].training != null ? `<h3 style="margin-top:12px">Тренировки</h3><div class="qa">${e(L[s].training || '—')}</div>` : ''}</div>`).join('') + '</div>';
+  } else if (mtab === 'admin') {
+    const c = M.ctx || {};
+    b.innerHTML = `<div class="panel"><h3>Вопрос по матчу</h3><div class="row"><input id="q" placeholder="Почему проиграла эта команда? Как сыграл такой-то игрок?" style="flex:1;min-width:240px"><button class="btn" id="ask" ${f.status !== 'done' ? 'disabled' : ''}>Спросить</button></div>${f.status !== 'done' ? '<p class="muted small">Вопросы доступны после окончания матча.</p>' : ''}<div id="ans"></div></div>
+    ${M.err ? `<div class="warn">Последняя ошибка запуска: ${e(M.err)}</div>` : ''}${M.fallback ? '<div class="warn">Часть матча сгенерирована запасным генератором: нейросеть не ответила.</div>' : ''}
+    <div class="panel"><h3>Контекст, который получила нейросеть</h3><div class="small"><p><b>Мотивация:</b> ${e(c.motiv?.home)}<br>${e(c.motiv?.away)}</p><p><b>Усталость:</b> ${e(c.fat?.home)}<br>${e(c.fat?.away)}</p><p><b>Гонка бомбардиров:</b> ${e(c.race)}</p></div><details><summary>Полный текст запроса (1-й период)</summary><pre class="qa small" style="white-space:pre-wrap">${e(c.prompt)}</pre></details></div>`;
+    $('#ask').onclick = async () => { $('#ans').innerHTML = '<div class="qa">Думаю…</div>'; try { const r = await api('/admin/ask', { fid: f.id, question: $('#q').value }); $('#ans').innerHTML = `<div class="qa">${e(r.answer)}</div>`; } catch (x) { $('#ans').innerHTML = `<div class="warn">${e(x.message)}</div>`; } };
+  }
+}
+
+/* ───── статистика ───── */
+let LD = { comp: 'rpl', view: 'p', metric: 'g', sort: 'g' };
+async function pgLeaders(app) {
+  const d = await api('/leaders?comp=' + LD.comp);
+  const PM = [['g', 'Голы'], ['a', 'Передачи'], ['ga', 'Гол+пас'], ['xg', 'xG'], ['sh', 'Удары'], ['tk', 'Отборы'], ['sv', 'Сейвы'], ['cs', 'Сухие матчи'], ['ff', 'Фолы (совершил)'], ['fa', 'Фолы (на нём)'], ['yc', 'Жёлтые'], ['rc', 'Красные']];
+  const TC = [['m', 'И'], ['g', 'Г'], ['ga', 'ПР'], ['xg', 'xG'], ['xga', 'xGA'], ['co', 'Угл'], ['penF', 'Пен+'], ['penA', 'Пен−'], ['refF', 'Суд+'], ['refA', 'Суд−'], ['fo', 'Фолы'], ['foA', 'Фолы пр.'], ['yc', 'ЖК'], ['rc', 'КК'], ['tk', 'Отб'], ['sv', 'Сейвы'], ['cs', 'Сухие']];
+  const pc = [...d.players.reduce((m, x) => { const o = m.get(x.pid) || { ...x, m: 0 }; if (m.has(x.pid)) for (const k of ['min', 'g', 'a', 'yc', 'rc', 'tk', 'sv', 'sh', 'xg', 'ff', 'fa', 'cs', 'm']) o[k] += x[k]; m.set(x.pid, o); return m; }, new Map()).values()].map(x => ({ ...x, ga: x.g + x.a }));
+  app.innerHTML = `<h1>Статистика</h1><div class="tabs">${S.st.comps.filter(c => c.type === 'league' || c.id === 'cup').map(c => `<button data-c="${c.id}" class="${c.id === LD.comp ? 'on' : ''}">${e(c.name)}</button>`).join('')}</div>
+  <div class="tabs"><button data-v="p" class="${LD.view === 'p' ? 'on' : ''}">Игроки</button><button data-v="t" class="${LD.view === 't' ? 'on' : ''}">Команды</button></div>
+  ${LD.view === 'p' ? `<div class="row" style="margin-bottom:10px">${PM.map(([k, t]) => `<button class="btn sm ${k === LD.metric ? '' : 'alt'}" data-m="${k}">${t}</button>`).join('')}</div>
+    <div class="panel wrap">${pc.length ? `<table><thead><tr><th>#</th><th class="l">Игрок</th><th class="l">Команда</th><th>Матчи</th><th>${PM.find(x => x[0] === LD.metric)[1]}</th></tr></thead><tbody>${pc.filter(x => x[LD.metric] > 0).sort((a, b) => b[LD.metric] - a[LD.metric] || b.min - a.min).slice(0, 50).map((x, i) => `<tr><td class="pos">${i + 1}</td><td class="l">${e(x.n)}</td><td class="l muted">${e(x.team)}</td><td>${x.m}</td><td><b>${LD.metric === 'xg' ? (+x[LD.metric]).toFixed(2) : x[LD.metric]}</b></td></tr>`).join('') || '<tr><td colspan="5" class="empty">Пока нет данных по этому показателю.</td></tr>'}</tbody></table>` : '<div class="empty">Статистика появится после первых полностью сыгранных матчей.</div>'}</div>`
+  : `<div class="panel wrap">${d.teams.length ? `<table><thead><tr><th class="l">Команда</th>${TC.map(([k, t]) => `<th class="s" data-s="${k}">${t}${LD.sort === k ? ' ▾' : ''}</th>`).join('')}</tr></thead><tbody>${[...d.teams].map(x => ({ ...x })).sort((a, b) => (b[LD.sort] || 0) - (a[LD.sort] || 0)).map(x => `<tr><td class="l">${e(x.team)}</td>${TC.map(([k]) => `<td>${k === 'xg' || k === 'xga' ? (+x[k]).toFixed(2) : (x[k] || 0)}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="small muted">Суд+ — ошибки арбитра в пользу команды, Суд− — против. Пен+ / Пен− — пенальти в пользу / против. ПР — пропущенные мячи.</p>` : '<div class="empty">Статистика команд появится после первых полностью сыгранных матчей.</div>'}</div>`}`;
+  app.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { LD.comp = b.dataset.c; pgLeaders(app); }); app.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { LD.view = b.dataset.v; pgLeaders(app); });
+  app.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { LD.metric = b.dataset.m; pgLeaders(app); }); app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { LD.sort = b.dataset.s; pgLeaders(app); });
+}
+
+/* ───── клуб ───── */
+let CT = 'matches', CLUB_TID = '';
+async function pgClub(app) {
+  if (!S.me) return location.hash = '#/login';
+  if (S.me.role === 'admin' && !CLUB_TID) { const t = S.st.teams.filter(t => t.comp === 'rpl'); CLUB_TID = t[0]?.id || ''; }
+  const q = S.me.role === 'admin' ? '?teamId=' + CLUB_TID : ''; let c; try { c = await api('/club' + q); } catch (x) { app.innerHTML = `<div class="panel warn">${e(x.message)}</div>`; return; }
+  const withT = o => S.me.role === 'admin' ? { ...o, teamId: CLUB_TID } : o;
+  app.innerHTML = `<div class="row sp"><h1>${e(c.team.name)}</h1>${S.me.role === 'admin' ? `<select id="tsel" style="max-width:260px">${S.st.teams.map(t => `<option value="${t.id}" ${t.id === CLUB_TID ? 'selected' : ''}>${e(t.name)} (${e(compName(t.comp))})</option>`).join('')}</select>` : ''}</div>
+  <div class="tabs"><button data-t="matches" class="${CT === 'matches' ? 'on' : ''}">Матчи и тактика</button><button data-t="squad" class="${CT === 'squad' ? 'on' : ''}">Заявка (${c.squad.length}/${c.squadMax})</button></div><div id="cb"></div>`;
+  $('#tsel') && ($('#tsel').onchange = ev => { CLUB_TID = ev.target.value; pgClub(app); });
+  app.querySelectorAll('[data-t]').forEach(b => b.onclick = () => { CT = b.dataset.t; pgClub(app); });
+  const cb = $('#cb');
+  if (CT === 'squad') {
+    const gp = { ВР: 0, ЦЗ: 1, ЛЗ: 1, ПЗ: 1, ОП: 2, ЦП: 2, АП: 2, ЛВ: 3, ПВ: 3, ЦФ: 3 };
+    cb.innerHTML = `<div class="panel"><h3>Добавить игрока</h3><p class="muted small">Начните вводить фамилию. Если игрока нет в базе, нажмите «Создать»: нейросеть заполнит карточку. Игрок из чужой заявки уйдёт на согласование админу.</p>
+    <div class="row"><div class="sug" style="flex:1;min-width:240px"><input id="pn" placeholder="Например: Месси" autocomplete="off"><div class="list" id="pl" hidden></div></div><select id="pp" style="width:90px"><option value="">поз.</option>${Object.keys(gp).map(p => `<option>${p}</option>`).join('')}</select><button class="btn" id="padd">Создать и добавить</button></div></div>
+    <div class="panel wrap"><table><thead><tr><th class="l">Игрок</th><th>Поз.</th><th>Возраст</th><th class="l">Стиль</th><th class="l">Статус</th><th></th></tr></thead><tbody>${c.squad.sort((a, b) => gp[a.pos] - gp[b.pos]).map(p => `<tr><td class="l">${e(p.name)}</td><td>${p.pos}</td><td>${age(p.born)}</td><td class="l muted small" style="white-space:normal;max-width:340px">${e(p.style)}</td><td class="l">${p.available ? '<span class="tag">готов</span>' : `<span class="tag" style="background:#fde8e6">${p.banLeft > 0 ? 'дисквалификация' : 'травма'}</span>`}</td><td><button class="btn alt sm" data-rm="${p.id}">убрать</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">Заявка пуста.</td></tr>'}</tbody></table></div>
+    <div class="row"><button class="btn" id="subm">Подать заявку на сезон</button><span class="muted small">${c.squadSubmitted ? 'Заявка подана. Изменения учитываются автоматически.' : 'Пока заявка не подана, в матчи идут все ваши игроки.'}</span></div>`;
+    let t; $('#pn').oninput = () => { clearTimeout(t); t = setTimeout(async () => { const v = $('#pn').value.trim(); if (v.length < 2) return $('#pl').hidden = true; const r = await api('/players/search?q=' + encodeURIComponent(v)); $('#pl').hidden = !r.length; $('#pl').innerHTML = r.map(p => `<div data-id="${p.id}">${e(p.name)} <span class="muted small">${p.pos} · ${e(p.team)}</span></div>`).join(''); }, 220); };
+    $('#pl').onclick = async ev => { const id = ev.target.closest('[data-id]')?.dataset.id; if (!id) return; $('#pl').hidden = true; const r = await act(() => api('/club/squad/add', withT({ playerId: id }))); if (r) { r.pending ? toast(r.message) : toast('Игрок добавлен'); pgClub(app); } };
+    $('#padd').onclick = async () => { const n = $('#pn').value.trim(); if (!n) return; $('#padd').disabled = true; $('#padd').textContent = 'Создаю карточку…'; const r = await act(() => api('/club/squad/add', withT({ name: n, pos: $('#pp').value }))); if (r) { r.pending ? toast(r.message) : toast('Игрок добавлен'); pgClub(app); } else { $('#padd').disabled = false; $('#padd').textContent = 'Создать и добавить'; } };
+    cb.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (confirm('Убрать игрока из заявки?')) { await act(() => api('/club/squad/remove', withT({ playerId: b.dataset.rm }))); pgClub(app); } });
+    $('#subm').onclick = async () => { await act(() => api('/club/squad/submit', withT({})), 'Заявка подана'); pgClub(app); };
+    return;
+  }
+  if (!c.upcoming.length) { cb.innerHTML = '<div class="empty panel">Ближайших матчей нет. Расписание создаёт админ.</div>'; return; }
+  cb.innerHTML = c.upcoming.map(f => `<div class="panel" data-f="${f.id}"><div class="row sp"><h3>${fmtD(f.date)}, ${f.time} · ${e(f.label)} · ${f.home === c.team.id ? 'дома' : 'в гостях'} против ${e(f.opp)}</h3><span>${f.derby ? '<span class="tag derby">дерби</span> ' : ''}<span class="tag">${f.lineup ? 'состав подан' : 'состав не подан'}</span></span></div><button class="btn alt sm open">Настроить состав, тактику и тренировки</button><div class="form"></div></div>`).join('');
+  cb.querySelectorAll('.panel').forEach(p => p.querySelector('.open').onclick = () => { const f = c.upcoming.find(x => x.id === p.dataset.f); p.querySelector('.open').remove(); lineupForm(p.querySelector('.form'), f, c, withT, app); });
+}
+function lineupForm(box, f, c, withT, app) {
+  const L = f.lineup || c.tactic || f.auto; const st = new Set(L.starters || []), bn = new Set(L.bench || []);
+  const order = { ВР: 0, ЦЗ: 1, ЛЗ: 1, ПЗ: 1, ОП: 2, ЦП: 2, АП: 2, ЛВ: 3, ПВ: 3, ЦФ: 3 };
+  const sq = [...c.squad].sort((a, b) => order[a.pos] - order[b.pos]);
+  box.innerHTML = `<label>Схема</label><input class="fm" value="${e(L.formation || '4-3-3')}" style="max-width:140px">
+  <label>Состав: выберите 11 в старт и до 9 на скамейку <span class="muted small" data-cnt></span></label>
+  <div>${sq.map(p => `<div class="pick ${p.available ? '' : 'off'}"><span class="tag">${p.pos}</span><span>${e(p.name)}${p.available ? '' : ' <span class="muted small">(недоступен)</span>'}</span><select data-p="${p.id}" ${p.available ? '' : 'disabled'}><option value="">—</option><option value="s" ${st.has(p.id) ? 'selected' : ''}>В старте</option><option value="b" ${bn.has(p.id) ? 'selected' : ''}>Скамейка</option></select></div>`).join('')}</div>
+  <label>Тактика — всё, что тренер говорит игрокам перед матчем</label><textarea class="sp1" placeholder="Пишите как есть: установка, настрой, речь. Молчание — тоже речь.">${e(L.speech || '')}</textarea>
+  <label>Тренировочный план перед матчем (произвольный текст)</label><textarea class="tr1" placeholder="Например: пн — отдых, вт — прессинг 2 часа, ср — стандарты, чт — разминка, пт — отдых">${e(L.training || '')}</textarea>
+  <div class="row" style="margin-top:12px"><button class="btn save">Сохранить</button><span class="muted small">Состав можно менять до начала матча.</span></div>`;
+  const cnt = () => { const a = [...box.querySelectorAll('select')].filter(s => s.value === 's').length, b = [...box.querySelectorAll('select')].filter(s => s.value === 'b').length; box.querySelector('[data-cnt]').textContent = `— старт ${a}/11, скамейка ${b}`; }; cnt(); box.addEventListener('change', cnt);
+  box.querySelector('.save').onclick = async () => {
+    const sel = [...box.querySelectorAll('select')]; const starters = sel.filter(s => s.value === 's').map(s => s.dataset.p), bench = sel.filter(s => s.value === 'b').map(s => s.dataset.p);
+    const r = await act(() => api('/club/lineup', withT({ fid: f.id, formation: box.querySelector('.fm').value, starters, bench, speech: box.querySelector('.sp1').value, training: box.querySelector('.tr1').value })), 'Сохранено'); if (r) pgClub(app);
+  };
+}
+
+/* ───── админка ───── */
+let AT = 'matches', AF = { comp: 'rpl', round: '' };
+async function pgAdmin(app) {
+  if (S.me?.role !== 'admin') return location.hash = '#/login';
+  const ov = await api('/admin/overview'); const T = ov.teams;
+  const tabs = [['matches', 'Матчи'], ['clubs', 'Клубы и коды'], ['players', 'Игроки'], ['derbies', 'Дерби'], ['transfers', `Трансферы${ov.transfers.length ? ' (' + ov.transfers.length + ')' : ''}`], ['settings', 'Настройки']];
+  app.innerHTML = `<h1>Админка</h1><div class="tabs">${tabs.map(([k, t]) => `<button data-a="${k}" class="${k === AT ? 'on' : ''}">${t}</button>`).join('')}</div><div id="ab"></div>`;
+  app.querySelectorAll('[data-a]').forEach(b => b.onclick = () => { AT = b.dataset.a; pgAdmin(app); });
+  const ab = $('#ab'), re = () => pgAdmin(app);
+  if (!ov.keys.gemini && !ov.keys.groq && !ov.keys.openrouter) ab.insertAdjacentHTML('beforebegin', '<div class="warn" style="margin-bottom:12px">Ключей нейросети нет: матчи идут на запасном генераторе, карточки игроков пустые. Добавьте ключ во вкладке «Настройки».</div>');
+
+  if (AT === 'matches') {
+    const all = await api(`/fixtures?comp=${AF.comp}`); const labels = [...new Set(all.map(f => f.label))];
+    if (!AF.round || !labels.includes(AF.round)) AF.round = (all.find(f => f.status !== 'done') || all[all.length - 1] || {}).label || '';
+    const list = all.filter(f => f.label === AF.round);
+    ab.innerHTML = `<div class="panel"><h3>Сезон</h3><p class="muted small">Сейчас: ${e(ov.settings.season)}, матчей в расписании: ${all.length ? 'есть' : 'нет'}. Расписание строится для РПЛ, ФНЛ, ФНЛ-2, ПФЛ, Медиалиги и Кубка России сразу.</p>
+    <div class="row"><input id="sn" value="${e(ov.settings.season)}" style="width:130px" title="Название сезона"><input id="sd" type="date" style="width:170px" title="Дата первого тура"><button class="btn" id="gen">Создать расписание сезона</button></div></div>
+    <div class="panel"><div class="row">${S.st.comps.map(c => `<button class="btn sm ${c.id === AF.comp ? '' : 'alt'}" data-c="${c.id}">${e(c.name)}</button>`).join('')}<select id="rsel" style="max-width:200px">${labels.map(l => `<option ${l === AF.round ? 'selected' : ''}>${e(l)}</option>`).join('')}</select>
+    <button class="btn" id="runr">Запустить все матчи этого тура</button></div><p class="muted small">Матчи, где у обеих команд есть заявка (14+ игроков), играются полностью с трансляцией. Остальные получают счёт сразу. Автозапуск по времени включается в «Настройках».</p></div>
+    <div class="panel">${list.length ? list.map(f => `<div class="row sp" style="padding:6px 0;border-bottom:1px solid var(--line)"><div style="flex:1;min-width:260px">${fxRow(f).replace(/class="fx/, 'class="fx')}</div><div class="row">${f.status === 'scheduled' ? `<button class="btn sm" data-run="${f.id}">Запуск</button><button class="btn alt sm" data-lu="${f.id}">Составы</button><button class="btn alt sm" data-ed="${f.id}">Дата/счёт</button>` : ''}${['done', 'live', 'queued', 'generating'].includes(f.status) ? `<button class="btn alt sm" data-rs="${f.id}">Сбросить</button>` : ''}</div></div>`).join('') : '<div class="empty">Нет матчей. Создайте расписание сезона.</div>'}</div>`;
+    ab.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { AF.comp = b.dataset.c; AF.round = ''; re(); }); $('#rsel').onchange = ev => { AF.round = ev.target.value; re(); };
+    $('#gen').onclick = async () => { const force = all.length && confirm('Расписание этого сезона уже есть. Создать заново? Сыгранные матчи пропадут.'); if (all.length && !force) return; const r = await act(() => api('/admin/season', { start: $('#sd').value, name: $('#sn').value, force: 1 }), r => `Создано матчей: ${r.fixtures}`); if (r) re(); };
+    $('#runr').onclick = async () => { const comp = AF.comp, rd = list[0]?.round; const r = await act(() => api('/admin/run', { comp, round: rd }), r => `Запущено: ${r.full} с трансляцией, ${r.bg} со счётом`); if (r) setTimeout(re, 800); };
+    ab.querySelectorAll('[data-run]').forEach(b => b.onclick = async () => { const r = await act(() => api('/admin/run', { fid: b.dataset.run }), r => r.full ? 'Матч запущен, идёт подготовка' : 'Счёт готов'); if (r) setTimeout(re, 800); });
+    ab.querySelectorAll('[data-rs]').forEach(b => b.onclick = async () => { if (confirm('Сбросить матч? Результат и статистика пропадут.')) { await act(() => api('/admin/fixture', { id: b.dataset.rs, reset: 1 }), 'Сброшен'); re(); } });
+    ab.querySelectorAll('[data-lu]').forEach(b => b.onclick = async () => { const l = await api('/admin/lineups/' + b.dataset.lu); modal(['home', 'away'].map(s => `<h3>${e(l[s].team)} · ${e(l[s].formation)} ${l[s].submitted ? '' : '<span class="tag">авто</span>'}</h3><p class="small"><b>Старт:</b> ${e(l[s].starters.join(', '))}<br><b>Скамейка:</b> ${e(l[s].bench.join(', '))}</p><div class="qa small">Речь: ${e(l[s].speech || '(молчание)')}\nТренировки: ${e(l[s].training || '—')}</div>`).join('<hr>')); });
+    ab.querySelectorAll('[data-ed]').forEach(b => b.onclick = () => { const f = all.find(x => x.id === b.dataset.ed); const m = modal(`<h3>${e(f.homeName)} — ${e(f.awayName)}</h3><label>Дата</label><input id="ed" type="date" value="${f.date}"><label>Время</label><input id="et" value="${f.time}"><div class="row" style="margin-top:12px"><button class="btn" id="es">Сохранить дату и время</button></div><hr><label>Или вручную проставить счёт (без симуляции)</label><div class="row"><input id="eh" type="number" min="0" style="width:80px"><b>:</b><input id="ea" type="number" min="0" style="width:80px"><button class="btn alt" id="eg">Записать счёт</button></div>`, m => { m.querySelector('#es').onclick = async () => { await act(() => api('/admin/fixture', { id: f.id, date: m.querySelector('#ed').value, time: m.querySelector('#et').value }), 'Сохранено'); m.remove(); re(); }; m.querySelector('#eg').onclick = async () => { await act(() => api('/admin/fixture', { id: f.id, hg: m.querySelector('#eh').value, ag: m.querySelector('#ea').value }), 'Счёт записан'); m.remove(); re(); }; }); });
+  }
+  else if (AT === 'clubs') {
+    ab.innerHTML = `<div class="panel"><div class="row sp"><h3>Команды</h3><button class="btn" id="addt">+ Новая команда</button></div><p class="muted small">Коды есть у команд РПЛ. Отправьте код игроку, и он управляет своим клубом. Списки ФНЛ, ФНЛ-2, ПФЛ и Медиалиги — заготовки, поправьте их под свой сезон.</p>
+    <div class="wrap"><table><thead><tr><th class="l">Команда</th><th class="l">Лига</th><th class="l">Код</th><th>Игроков</th><th>Заявка</th><th></th></tr></thead><tbody>${T.map(t => `<tr><td class="l">${e(t.name)}</td><td class="l">${e(compName(t.comp))}</td><td class="l">${t.code ? `<span class="code" data-cp="${t.code}" style="cursor:pointer" title="Скопировать">${t.code}</span>` : '<span class="muted">—</span>'}</td><td>${t.squad}</td><td>${t.submitted ? 'подана' : '—'}</td><td class="l"><button class="btn alt sm" data-te="${t.id}">Изменить</button> <button class="btn alt sm" data-im="${t.id}">Загрузить игроков</button></td></tr>`).join('')}</tbody></table></div></div>`;
+    ab.querySelectorAll('[data-cp]').forEach(s => s.onclick = () => { navigator.clipboard?.writeText(s.dataset.cp); toast('Код скопирован'); });
+    const teamForm = t => { const m = modal(`<h3>${t ? 'Команда' : 'Новая команда'}</h3><label>Название</label><input id="tn" value="${e(t?.name || '')}"><label>Лига</label><select id="tc">${S.st.comps.filter(c => c.type === 'league').map(c => `<option value="${c.id}" ${t?.comp === c.id ? 'selected' : ''}>${e(c.name)}</option>`).join('')}</select><label>Город</label><input id="tci" value="${e(t?.city || '')}"><label>Стадион</label><input id="ts" value="${e(t?.stadium || '')}"><div class="row"><div style="flex:1"><label>Широта (для погоды)</label><input id="tla" value="${t?.lat ?? ''}"></div><div style="flex:1"><label>Долгота</label><input id="tlo" value="${t?.lon ?? ''}"></div></div><div class="row" style="margin-top:14px"><button class="btn" id="tsv">Сохранить</button>${t ? '<button class="btn alt" id="trg">Новый код</button><button class="btn alt" id="tcc">Убрать код</button><button class="btn red" id="tdl">Удалить</button>' : ''}</div>`, m => {
+      const send = x => act(() => api('/admin/team', { id: t?.id, name: m.querySelector('#tn').value, comp: m.querySelector('#tc').value, city: m.querySelector('#tci').value, stadium: m.querySelector('#ts').value, lat: m.querySelector('#tla').value, lon: m.querySelector('#tlo').value, ...x }), 'Готово').then(r => { if (r) { m.remove(); re(); } });
+      m.querySelector('#tsv').onclick = () => send({}); if (t) { m.querySelector('#trg').onclick = () => send({ regen: 1 }); m.querySelector('#tcc').onclick = () => send({ clearCode: 1 }); m.querySelector('#tdl').onclick = () => confirm('Удалить команду?') && send({ delete: 1 }); } }); };
+    $('#addt').onclick = () => teamForm(null); ab.querySelectorAll('[data-te]').forEach(b => b.onclick = () => teamForm(T.find(t => t.id === b.dataset.te)));
+    ab.querySelectorAll('[data-im]').forEach(b => b.onclick = () => { const t = T.find(x => x.id === b.dataset.im); modal(`<h3>Игроки ${e(t.name)}</h3><p class="muted small">Вставьте список фамилий (по одной в строке или через запятую). Нейросеть заполнит карточки: позиция, возраст, стиль, достижения, статистика. Карточки можно править во вкладке «Игроки».</p><textarea id="nm" style="min-height:200px" placeholder="Иванов&#10;Петров&#10;Сидоров"></textarea><div class="row" style="margin-top:12px"><button class="btn" id="goi">Загрузить</button><button class="btn alt" id="gor">Обновить карточки (форма, новости)</button></div>`, m => { m.querySelector('#goi').onclick = async ev => { ev.target.disabled = true; ev.target.textContent = 'Работаю…'; const r = await act(() => api('/admin/import', { teamId: t.id, names: m.querySelector('#nm').value }), r => `Добавлено ${r.added}, из них найдено нейросетью: ${r.verified}`); if (r) { m.remove(); re(); } else { ev.target.disabled = false; ev.target.textContent = 'Загрузить'; } }; m.querySelector('#gor').onclick = async ev => { ev.target.disabled = true; const r = await act(() => api('/admin/refresh', { teamId: t.id }), r => `Обновлено карточек: ${r.updated}`); ev.target.disabled = false; }; }); });
+  }
+  else if (AT === 'players') {
+    ab.innerHTML = `<div class="panel"><div class="row"><input id="pq" placeholder="Поиск по фамилии" style="flex:1;min-width:200px"><select id="pt" style="max-width:230px"><option value="">Все команды</option>${T.map(t => `<option value="${t.id}">${e(t.name)}</option>`).join('')}</select><button class="btn" id="pnew">+ Игрок</button></div><div id="plist" class="wrap" style="margin-top:10px"></div></div>`;
+    const load = async () => { const l = await api(`/admin/players?q=${encodeURIComponent($('#pq').value)}&teamId=${$('#pt').value}`); $('#plist').innerHTML = `<table><thead><tr><th class="l">Имя</th><th>Поз.</th><th>Возр.</th><th class="l">Клуб</th><th class="l">Карточка</th><th></th></tr></thead><tbody>${l.map(p => `<tr><td class="l">${e(p.name)}</td><td>${p.pos}</td><td>${age(p.born)}</td><td class="l">${e(T.find(t => t.id === p.teamId)?.name || '—')}</td><td class="l">${p.verified ? '<span class="tag">нейросеть</span>' : '<span class="tag bg">вручную / пусто</span>'}</td><td><button class="btn alt sm" data-pe="${p.id}">Править</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">Никого нет</td></tr>'}</tbody></table>`; $('#plist').querySelectorAll('[data-pe]').forEach(b => b.onclick = () => pform(l.find(p => p.id === b.dataset.pe))); };
+    const pform = p => { const f = (k, l, ta) => `<label>${l}</label>${ta ? `<textarea id="f_${k}" style="min-height:60px">${e(p?.[k] || '')}</textarea>` : `<input id="f_${k}" value="${e(p?.[k] || '')}">`}`; modal(`<h3>${p ? e(p.name) : 'Новый игрок'}</h3>${f('name', 'Имя')}<div class="row"><div style="flex:1">${f('pos', 'Позиция (ВР, ЦЗ, ЛЗ, ПЗ, ОП, ЦП, АП, ЛВ, ПВ, ЦФ)')}</div><div style="flex:1">${f('born', 'Дата рождения (ГГГГ или ГГГГ-ММ-ДД)')}</div></div><label>Клуб</label><select id="f_teamId"><option value="">без клуба</option>${T.map(t => `<option value="${t.id}" ${p?.teamId === t.id ? 'selected' : ''}>${e(t.name)}</option>`).join('')}</select>${f('style', 'Стиль игры', 1)}<label>Достижения (по одному в строке)</label><textarea id="f_ach" style="min-height:60px">${e((p?.achievements || []).join('\n'))}</textarea>${f('stats2y', 'Статистика за 2 сезона', 1)}${f('form', 'Текущая форма', 1)}${f('character', 'Характер', 1)}${f('news', 'Новости', 1)}<div class="row" style="margin-top:14px"><button class="btn" id="psv">Сохранить</button>${p ? '<button class="btn red" id="pdl">Удалить</button>' : ''}</div>`, m => { const g = k => m.querySelector('#f_' + k).value; m.querySelector('#psv').onclick = async () => { const r = await act(() => api('/admin/player', { id: p?.id, name: g('name'), pos: g('pos'), born: g('born'), teamId: g('teamId'), style: g('style'), achievements: g('ach'), stats2y: g('stats2y'), form: g('form'), character: g('character'), news: g('news') }), 'Сохранено'); if (r) { m.remove(); load(); } }; if (p) m.querySelector('#pdl').onclick = async () => { if (confirm('Удалить игрока?')) { await act(() => api('/admin/player', { id: p.id, delete: 1 }), 'Удалён'); m.remove(); load(); } }; }); };
+    let t; $('#pq').oninput = () => { clearTimeout(t); t = setTimeout(load, 250); }; $('#pt').onchange = load; $('#pnew').onclick = () => pform(null); load();
+  }
+  else if (AT === 'derbies') {
+    const d = await api('/derbies'); const opts = T.filter(t => t.comp === 'rpl' || true).map(t => `<option value="${t.id}">${e(t.name)}</option>`).join('');
+    ab.innerHTML = `<div class="panel"><h3>Дерби и принципиальные соперники</h3><p class="muted small">Эти пары попадают в запрос каждого матча как «ПРОТИВОСТОЯНИЕ». Если пары здесь нет, нейросеть всё равно учтёт известное ей соперничество сама, но лучше вписать важное явно.</p>
+    <table><thead><tr><th class="l">Пара</th><th class="l">Название</th><th class="l">Заметка</th><th></th></tr></thead><tbody>${d.map(x => `<tr><td class="l">${e(x.aName)} — ${e(x.bName)}</td><td class="l">${e(x.name)}</td><td class="l small" style="white-space:normal">${e(x.note)}</td><td><button class="btn alt sm" data-dd="${x.id}">убрать</button></td></tr>`).join('')}</tbody></table></div>
+    <div class="panel"><h3>Добавить пару</h3><div class="row"><select id="da" style="flex:1">${opts}</select><select id="db" style="flex:1">${opts}</select></div><label>Название</label><input id="dn" placeholder="Например: Южное дерби"><label>Заметка для нейросети</label><input id="dt" placeholder="Почему этот матч особенный"><div class="row" style="margin-top:12px"><button class="btn" id="dadd">Добавить</button></div></div>`;
+    $('#dadd').onclick = async () => { const r = await act(() => api('/admin/derby', { a: $('#da').value, b: $('#db').value, name: $('#dn').value, note: $('#dt').value }), 'Добавлено'); if (r) re(); };
+    ab.querySelectorAll('[data-dd]').forEach(b => b.onclick = async () => { await act(() => api('/admin/derby', { id: b.dataset.dd, delete: 1 })); re(); });
+  }
+  else if (AT === 'transfers') {
+    ab.innerHTML = `<div class="panel"><h3>Заявки на трансфер</h3>${ov.transfers.length ? ov.transfers.map(t => `<div class="row sp" style="padding:8px 0;border-bottom:1px solid var(--line)"><div><b>${e(t.pName)}</b>: ${e(t.fromName)} → ${e(t.toName)}<div class="muted small">${e(t.note || '')}</div></div><div class="row"><button class="btn sm" data-ap="${t.id}">Одобрить</button><button class="btn alt sm" data-rj="${t.id}">Отклонить</button></div></div>`).join('') : '<div class="empty">Заявок нет</div>'}</div>`;
+    ab.querySelectorAll('[data-ap]').forEach(b => b.onclick = async () => { await act(() => api('/admin/transfer', { id: b.dataset.ap, approve: 1 }), 'Одобрено'); re(); }); ab.querySelectorAll('[data-rj]').forEach(b => b.onclick = async () => { await act(() => api('/admin/transfer', { id: b.dataset.rj }), 'Отклонено'); re(); });
+  }
+  else if (AT === 'settings') {
+    const s = ov.settings, k = ov.keys, mo = ov.models || {};
+    ab.innerHTML = `<div class="panel"><h3>Код администратора</h3><div class="code">${e(s.adminCode)}</div><p class="muted small">Его можно переопределить переменной окружения ADMIN_CODE.</p></div>
+    <div class="panel"><h3>Нейросеть</h3><p class="muted small">Порядок: Gemini → Groq → OpenRouter. Если у одного закончился лимит, запрос уходит к следующему. Ключи можно задать здесь или переменными окружения.</p>
+    ${[['gemini', 'Google Gemini (AI Studio)', 'gemini-flash-latest'], ['groq', 'Groq', 'openai/gpt-oss-120b'], ['openrouter', 'OpenRouter', 'openrouter/free']].map(([n, t, d]) => `<div class="row" style="margin-top:8px"><div style="flex:1;min-width:230px"><label>${t} ${k[n] ? '<span class="tag">ключ есть</span>' : ''}</label><input id="k_${n}" type="password" placeholder="${k[n] ? 'оставьте пустым, чтобы не менять' : 'вставьте ключ'}" autocomplete="off"></div><div style="flex:1;min-width:200px"><label>Модель</label><input id="m_${n}" value="${e(mo[n] || '')}" placeholder="${d}"></div></div>`).join('')}
+    <label><input type="checkbox" id="gr" ${s.grounding ? 'checked' : ''} style="width:auto"> Поиск Google при создании карточек (только Gemini, актуальнее, но лимиты меньше)</label></div>
+    <div class="panel"><h3>Трансляция и Telegram</h3><div class="row"><div style="flex:1;min-width:200px"><label>Секунд реального времени на минуту матча</label><input id="spm" type="number" step="0.5" value="${s.secPerMin}"></div><div style="flex:1;min-width:200px"><label>Пауза на перерыве, сек</label><input id="brk" type="number" value="${s.breakSec}"></div></div>
+    <div class="row"><div style="flex:1;min-width:220px"><label>Токен Telegram-бота</label><input id="tgt" type="password" value="${e(s.tgToken)}" placeholder="123456:ABC…"></div><div style="flex:1;min-width:200px"><label>ID канала или чата</label><input id="tgc" value="${e(s.tgChat)}" placeholder="@mychannel"></div></div>
+    <label>Адрес сайта (для ссылок в Telegram)</label><input id="url" value="${e(s.siteUrl)}" placeholder="https://mysite.ru"></div>
+    <div class="panel"><h3>Игра</h3><div class="row"><div style="flex:1;min-width:200px"><label>Максимум игроков в заявке</label><input id="sqm" type="number" value="${s.squadMax}"></div><div style="flex:1;min-width:200px"><label>Запросов на матч</label><select id="chk"><option value="2" ${s.chunks != 6 ? 'selected' : ''}>2 (по таймам)</option><option value="6" ${s.chunks == 6 ? 'selected' : ''}>6 (по 15 минут, если ответ обрезается)</option></select></div></div>
+    <label><input type="checkbox" id="auto" ${s.auto ? 'checked' : ''} style="width:auto"> Автозапуск матчей по расписанию (матч стартует, когда наступило его время)</label></div>
+    <div class="panel"><h3>Системный промпт матча</h3><p class="muted small">Это правила, по которым нейросеть ведёт матч. Изменения действуют на следующие матчи.</p><textarea id="sys" style="min-height:340px;font:13px/1.45 ui-monospace,Consolas,monospace">${e(s.systemPrompt)}</textarea></div>
+    <div class="row"><button class="btn" id="ssv">Сохранить настройки</button></div>
+    <div class="panel" style="margin-top:16px"><h3>Последние запросы к нейросети</h3><div class="wrap"><table><thead><tr><th class="l">Время</th><th class="l">Задача</th><th class="l">Провайдер</th><th>мс</th><th class="l">Результат</th></tr></thead><tbody>${ov.log.map(l => `<tr><td class="l">${new Date(l.ts).toLocaleTimeString('ru-RU')}</td><td class="l">${e(l.task)}</td><td class="l">${e(l.p)}</td><td>${l.ms}</td><td class="l small" style="white-space:normal">${l.ok ? 'ок' : e(l.err)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Пока пусто</td></tr>'}</tbody></table></div></div>`;
+    $('#ssv').onclick = async () => { const keys = {}, models = {}; for (const n of ['gemini', 'groq', 'openrouter']) { keys[n] = $('#k_' + n).value; models[n] = $('#m_' + n).value; if (!keys[n]) delete keys[n]; }
+      await act(() => api('/admin/settings', { keys, models, grounding: $('#gr').checked, secPerMin: $('#spm').value, breakSec: $('#brk').value, tgToken: $('#tgt').value, tgChat: $('#tgc').value, siteUrl: $('#url').value, squadMax: $('#sqm').value, chunks: $('#chk').value, auto: $('#auto').checked, systemPrompt: $('#sys').value }), 'Настройки сохранены'); re(); };
+  }
+}
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Градиенты для объемной рубиновой звезды -->
+    <linearGradient id="facetLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3b3b"/>
+      <stop offset="100%" stop-color="#d61111"/>
+    </linearGradient>
+    <linearGradient id="facetDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ab0909"/>
+      <stop offset="100%" stop-color="#700202"/>
+    </linearGradient>
+    <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e52d2d"/>
+      <stop offset="100%" stop-color="#990000"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Внешний темный и красный обод -->
+  <circle cx="100" cy="100" r="96" fill="#880000" stroke="#111111" stroke-width="4"/>
+  <circle cx="100" cy="100" r="91" fill="#b71212" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="100" cy="100" r="69" fill="#111111" stroke="#ffffff" stroke-width="2"/>
+
+  <!-- Футбольный мяч в центре -->
+  <circle cx="100" cy="100" r="67" fill="#ffffff"/>
+  <!-- Пятиугольники футбольного мяча -->
+  <polygon points="100,82 113,91 108,107 92,107 87,91" fill="#1a1a1a"/>
+  <polygon points="100,50 114,58 108,68 92,68 86,58" fill="#1a1a1a"/>
+  <polygon points="144,80 152,94 140,103 130,95 132,82" fill="#1a1a1a"/>
+  <polygon points="56,80 68,82 70,95 60,103 48,94" fill="#1a1a1a"/>
+  <polygon points="126,128 136,118 147,126 142,138 130,138" fill="#1a1a1a"/>
+  <polygon points="74,128 70,138 58,138 53,126 64,118" fill="#1a1a1a"/>
+  <line x1="100" y1="82" x2="100" y2="68" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="113" y1="91" x2="130" y2="95" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="87" y1="91" x2="70" y2="95" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="108" y1="107" x2="126" y2="128" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="92" y1="107" x2="74" y2="128" stroke="#1a1a1a" stroke-width="2"/>
+
+  <!-- Объемная кремлевская звезда поверх мяча -->
+  <g filter="url(#shadow)">
+    <!-- 5 правых освещенных граней -->
+    <!-- Верхний луч -->
+    <polygon points="100,100 100,38 116,84" fill="url(#facetLight)"/>
+    <polygon points="100,100 100,38 84,84" fill="url(#facetDark)"/>
+    <!-- Правый верхний луч -->
+    <polygon points="100,100 162,78 126,112" fill="url(#facetLight)"/>
+    <polygon points="100,100 162,78 116,84" fill="url(#facetDark)"/>
+    <!-- Правый нижний луч -->
+    <polygon points="100,100 138,154 100,126" fill="url(#facetLight)"/>
+    <polygon points="100,100 138,154 126,112" fill="url(#facetDark)"/>
+    <!-- Левый нижний луч -->
+    <polygon points="100,100 62,154 74,112" fill="url(#facetLight)"/>
+    <polygon points="100,100 62,154 100,126" fill="url(#facetDark)"/>
+    <!-- Левый верхний луч -->
+    <polygon points="100,100 38,78 84,84" fill="url(#facetLight)"/>
+    <polygon points="100,100 38,78 74,112" fill="url(#facetDark)"/>
+    <!-- Контур звезды -->
+    <polygon points="100,38 116,84 162,78 126,112 138,154 100,126 62,154 74,112 38,78 84,84" fill="none" stroke="#ffffff" stroke-width="1.8"/>
+  </g>
+
+  <!-- Год основания 2008 внизу мяча -->
+  <rect x="84" y="141" width="32" height="13" rx="3" fill="#ffffff" stroke="#111111" stroke-width="1"/>
+  <text x="100" y="152" text-anchor="middle" font-family="'Unbounded', Arial, sans-serif" font-weight="900" font-size="9" fill="#111111" letter-spacing="1">2008</text>
+
+  <!-- Надписи по кругу (верхняя: ФК ЗВЕЗДА, нижняя: САНКТ-ПЕТЕРБУРГ) -->
+  <path id="textArcTop" d="M 32,100 A 68,68 0 0,1 168,100" fill="none"/>
+  <path id="textArcBottom" d="M 166,104 A 68,68 0 0,1 34,104" fill="none"/>
+
+  <text fill="#ffffff" font-family="'Unbounded', Arial, sans-serif" font-weight="900" font-size="12" letter-spacing="2">
+    <textPath href="#textArcTop" startOffset="50%" text-anchor="middle">ФК ЗВЕЗДА</textPath>
+  </text>
+  <text fill="#ffffff" font-family="'Unbounded', Arial, sans-serif" font-weight="800" font-size="9" letter-spacing="1.5">
+    <textPath href="#textArcBottom" startOffset="50%" text-anchor="middle">САНКТ-ПЕТЕРБУРГ</textPath>
+  </text>
+</svg>
