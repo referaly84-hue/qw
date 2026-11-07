@@ -48,6 +48,12 @@ test('Playoffs & Transition: verify rotation preview and playoff structure', asy
 
   // Total required matches = 2 + 2 + 2 + 1 + 1 = 8
   assert.equal(data.playoffsTotal, 8, 'Total playoff matches across all leagues must be 8');
+
+  // Verify Super Cup preview for upcoming season is provided
+  assert.ok(data.supercup, 'Rotation preview must contain supercup info for the new season');
+  assert.ok(data.supercup.homeName, 'Super cup preview must have home team name');
+  assert.ok(data.supercup.awayName, 'Super cup preview must have away team name');
+  assert.ok(data.supercup.reason, 'Super cup preview must state the regulation reason');
 });
 
 test('Playoffs & Transition: admin can generate and run all playoff matches', async () => {
@@ -88,4 +94,27 @@ test('Playoffs & Transition: admin can generate and run all playoff matches', as
     assert.ok(tie.winnerName, `Tie ${tie.id} must have a winnerName`);
     assert.ok(tie.scoreText, `Tie ${tie.id} must have scoreText`);
   }
+});
+
+test('Super Cup: initial season has Spartak vs Zenit, subsequent seasons follow champion regulations', async () => {
+  // Query Super Cup fixture for season 2026/27
+  const scRes = await fetch(`${BASE_URL}/api/fixtures?comp=supercup`);
+  assert.equal(scRes.status, 200);
+  const scList = await scRes.json();
+  assert.ok(scList.length > 0, 'Super Cup fixture must exist');
+
+  const sc2026 = scList[0];
+  const participants = [sc2026.homeName, sc2026.awayName];
+  assert.ok(
+    participants.includes('Спартак') && participants.includes('Зенит'),
+    `In the first season (2026/27), Super Cup must be Spartak vs Zenit, got: ${sc2026.homeName} vs ${sc2026.awayName}`
+  );
+
+  // Check rotation preview supercup logic
+  const prevRes = await fetch(`${BASE_URL}/api/season/rotation-preview`);
+  const prevData = await prevRes.json();
+  assert.ok(prevData.supercup, 'Must have supercup details in preview');
+  assert.equal(typeof prevData.supercup.homeName, 'string');
+  assert.equal(typeof prevData.supercup.awayName, 'string');
+  assert.notEqual(prevData.supercup.homeName, prevData.supercup.awayName, 'Teams in Super Cup must be distinct');
 });

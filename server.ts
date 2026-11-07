@@ -739,7 +739,9 @@ function load() {
   }
 
   ensureInitialBudgets();
-  ensureSuperCupFixture();
+  for (const s of getAvailableSeasons()) {
+    ensureSuperCupFixture(s);
+  }
   save();
 }
 
@@ -1056,35 +1058,197 @@ function ensureInitialBudgets() {
   if (changed) save();
 }
 
-function ensureSuperCupFixture(sName?: string) {
-  const season = sName || S();
-  if (!Array.isArray(db.fixtures)) db.fixtures = [];
-  const exists = db.fixtures.some((f: any) => f.comp === 'supercup' && f.season === season);
-  if (!exists) {
-    const zenit = db.teams.find((t: any) => t.name === 'Зенит');
-    const krasnodar = db.teams.find((t: any) => t.name === 'Краснодар');
-    const homeTeam = zenit || db.teams.find((t: any) => t.comp === 'rpl');
-    const awayTeam = krasnodar || db.teams.filter((t: any) => t.comp === 'rpl' && t.id !== homeTeam?.id)[0];
-    if (homeTeam && awayTeam) {
-      db.fixtures.unshift({
-        id: uid(),
-        comp: 'supercup',
-        season,
-        round: 1,
-        cupPath: 'supercup',
-        label: 'Суперкубок России · Финал',
-        home: homeTeam.id,
-        away: awayTeam.id,
-        date: '2026-07-11',
-        time: '17:30',
-        stadium: '«Ак Барс Арена» (нейтральное поле, г. Казань)',
-        city: 'Казань',
-        status: 'scheduled',
-        neutralField: true
-      });
-      save();
+export function getPreviousSeason(season: string): string | null {
+  const parts = String(season || '').split('/');
+  if (parts.length === 2 && !isNaN(+parts[0])) {
+    const y1 = +parts[0] - 1;
+    const y2 = (+parts[1] - 1 + 100) % 100;
+    return `${y1}/${String(y2).padStart(2, '0')}`;
+  }
+  return null;
+}
+
+export function getTableForSeason(comp: string, targetSeason: string) {
+  if (targetSeason === S()) {
+    const cur = table(comp);
+    if (cur && cur.length) return cur;
+  }
+  const list = db.fixtures.filter((f: any) => f.season === targetSeason && f.comp === comp && f.status === 'done');
+  const teamIds = new Set<string>();
+  list.forEach((f: any) => {
+    if (f.home) teamIds.add(f.home);
+    if (f.away) teamIds.add(f.away);
+  });
+  if (!teamIds.size) {
+    db.teams.filter((t: any) => t.comp === comp).forEach((t: any) => teamIds.add(t.id));
+  }
+  const R: Record<string, any> = {};
+  teamIds.forEach(id => {
+    const tm = team(id);
+    R[id] = { id, name: tn(id), logo: teamLogo(id), p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 };
+  });
+  for (const f of list) {
+    for (const [t, gf, ga] of [[f.home, f.hg, f.ag], [f.away, f.ag, f.hg]]) {
+      const r = R[t];
+      if (!r) continue;
+      r.p++;
+      r.gf += (gf || 0);
+      r.ga += (ga || 0);
+      if (gf > ga) { r.w++; r.pts += 3; }
+      else if (gf === ga) { r.d++; r.pts += 1; }
+      else r.l++;
     }
   }
+  return Object.values(R).sort((a: any, b: any) => 
+    b.pts - a.pts || 
+    (b.gf - b.ga) - (a.gf - a.ga) || 
+    b.w - a.w || 
+    b.gf - a.gf || 
+    a.name.localeCompare(b.name)
+  );
+}
+
+export function getCupWinnerForSeason(targetSeason: string): { id: string; name: string } | null {
+  const cupFx = db.fixtures.filter((f: any) => f.season === targetSeason && f.comp === 'cup' && f.status === 'done');
+  const finalMatch = cupFx.find((f: any) => 
+    f.cupStage === 'superfinal' || 
+    f.cupStage === 'final' || 
+    (f.label && f.label.toLowerCase().includes('суперфинал')) ||
+    (f.label && f.label.toLowerCase().includes('финал') && !f.label.toLowerCase().includes('1/'))
+  );
+  if (finalMatch) {
+    const wId = winnerOf(finalMatch);
+    if (wId) return { id: wId, name: tn(wId) };
+  }
+  if (db.cupState2026 && db.cupState2026.season === targetSeason && (db.cupState2026 as any).winnerId) {
+    const wId = (db.cupState2026 as any).winnerId;
+    return { id: wId, name: tn(wId) };
+  }
+  return null;
+}
+
+export function determineSuperCupTeams(targetSeason?: string) {
+  const season = targetSeason || S();
+  const prevSeason = getPreviousSeason(season);
+  
+  const spartak = db.teams.find((t: any) => t.name === 'Спартак') || db.teams.find((t: any) => t.comp === 'rpl');
+  const zenit = db.teams.find((t: any) => t.name === 'Зенит') || db.teams.find((t: any) => t.comp === 'rpl' && t.id !== spartak?.id);
+
+  // Самый первый сезон проекта (2026/27 или нет предшествующего сезона)
+  const isFirstSeason = !prevSeason || season === '2026/27';
+
+  if (isFirstSeason) {
+    return {
+      homeId: spartak?.id || 'spartak',
+      homeName: spartak?.name || 'Спартак',
+      homeLogo: teamLogo(spartak?.id),
+      awayId: zenit?.id || 'zenit',
+      awayName: zenit?.name || 'Зенит',
+      awayLogo: teamLogo(zenit?.id),
+      reason: 'Матч за Суперкубок первого сезона: Спартак — Зенит',
+      isFirstSeason: true
+    };
+  }
+
+  // Следующие сезоны: Чемпион РПЛ vs Обладатель Кубка России
+  // Если это одна и та же команда (золотой дубль), то играет 2-е место РПЛ!
+  const prevRplTable = getTableForSeason('rpl', prevSeason);
+  const rplChamp = prevRplTable[0] || zenit;
+  const rplRunnerUp = prevRplTable.find((t: any) => t.id !== rplChamp.id) || (spartak?.id !== rplChamp.id ? spartak : db.teams.find((t: any) => t.comp === 'rpl' && t.id !== rplChamp.id));
+
+  const cupWinner = getCupWinnerForSeason(prevSeason);
+
+  let awayId = '';
+  let awayName = '';
+  let reason = '';
+
+  if (cupWinner && cupWinner.id && cupWinner.id !== rplChamp.id) {
+    awayId = cupWinner.id;
+    awayName = cupWinner.name;
+    reason = `Чемпион РПЛ (${rplChamp.name}) vs Обладатель Кубка России (${cupWinner.name})`;
+  } else if (cupWinner && cupWinner.id === rplChamp.id) {
+    awayId = rplRunnerUp.id;
+    awayName = rplRunnerUp.name;
+    reason = `Золотой дубль ${rplChamp.name} (победа в РПЛ и Кубке России) — соперник: 2-е место РПЛ (${rplRunnerUp.name})`;
+  } else {
+    // Победитель Кубка не определён или совпадает с чемпионом — играет 2-е место РПЛ
+    awayId = rplRunnerUp.id;
+    awayName = rplRunnerUp.name;
+    reason = `Чемпион РПЛ (${rplChamp.name}) vs 2-е место РПЛ (${rplRunnerUp.name})`;
+  }
+
+  return {
+    homeId: rplChamp.id,
+    homeName: rplChamp.name,
+    homeLogo: teamLogo(rplChamp.id),
+    awayId,
+    awayName,
+    awayLogo: teamLogo(awayId),
+    reason,
+    isFirstSeason: false
+  };
+}
+
+export function ensureSuperCupFixture(sName?: string, startDate?: string) {
+  const season = sName || S();
+  if (!Array.isArray(db.fixtures)) db.fixtures = [];
+
+  const teams = determineSuperCupTeams(season);
+  const startYear = parseInt(season.slice(0, 4), 10) || 2026;
+  const scDate = startDate 
+    ? addDays(startDate, -7) 
+    : (season === '2026/27' ? '2026-07-11' : `${startYear}-07-11`);
+
+  const stadiums = [
+    { stadium: '«Ак Барс Арена» (нейтральное поле, г. Казань)', city: 'Казань' },
+    { stadium: '«Лужники» (нейтральное поле, г. Москва)', city: 'Москва' },
+    { stadium: '«Газпром Арена» (нейтральное поле, г. Санкт-Петербург)', city: 'Санкт-Петербург' },
+    { stadium: '«Волгоград Арена» (нейтральное поле, г. Волгоград)', city: 'Волгоград' }
+  ];
+  const venue = stadiums[startYear % stadiums.length] || stadiums[0];
+
+  const existing = db.fixtures.find((f: any) => f.comp === 'supercup' && f.season === season);
+  if (existing) {
+    if (existing.status === 'scheduled') {
+      existing.home = teams.homeId;
+      existing.away = teams.awayId;
+      existing.label = 'Суперкубок России · Финал';
+      existing.note = teams.reason;
+      if (startDate && (!existing.date || existing.date >= startDate)) {
+        existing.date = scDate;
+        existing.gameDate = scDate;
+      }
+      save();
+    }
+    return existing;
+  }
+
+  const newFx = {
+    id: uid(),
+    comp: 'supercup',
+    season,
+    round: 1,
+    cupPath: 'supercup',
+    label: 'Суперкубок России · Финал',
+    note: teams.reason,
+    home: teams.homeId,
+    away: teams.awayId,
+    date: scDate,
+    time: '17:30',
+    gameDate: scDate,
+    gameTime: '17:30',
+    stadium: venue.stadium,
+    city: venue.city,
+    status: 'scheduled',
+    hg: null,
+    ag: null,
+    neutralField: true
+  };
+
+  db.fixtures.unshift(newFx);
+  assignReferee(newFx);
+  save();
+  return newFx;
 }
 
 function calculateCupPrizeSuggestions() {
@@ -3067,6 +3231,7 @@ function performSeasonRotation(customNextSeason?: string, customStartDate?: stri
     promotions: { team: string; from: string; to: string; reason: string }[];
     relegations: { team: string; from: string; to: string; reason: string }[];
     playoffs: { match: string; score: string; winner: string; note?: string }[];
+    supercup?: { home: string; away: string; match: string; reason: string };
   } = {
     promotions: [],
     relegations: [],
@@ -3230,6 +3395,14 @@ function performSeasonRotation(customNextSeason?: string, customStartDate?: stri
   invalidateAgg();
   save();
 
+  const scInfo = determineSuperCupTeams(nextSeason);
+  report.supercup = {
+    home: scInfo.homeName,
+    away: scInfo.awayName,
+    match: `${scInfo.homeName} — ${scInfo.awayName}`,
+    reason: scInfo.reason
+  };
+
   return { ok: 1, currentSeason, nextSeason, startDate, report };
 }
 
@@ -3249,6 +3422,7 @@ function getSeasonRotationPreview() {
   const fnl2 = fnlRows[1] || { name: 'Велес', pts: 0 };
 
   const pl = getSeasonPlayoffs(currentSeason);
+  const scInfo = determineSuperCupTeams(nextSeason);
 
   return {
     currentSeason,
@@ -3267,7 +3441,8 @@ function getSeasonRotationPreview() {
     playoffsTotal: pl.playoffsTotal,
     playoffsPlayed: pl.playoffsPlayed,
     playoffsAllPlayed: pl.playoffsAllPlayed,
-    canRotate: pl.canRotate
+    canRotate: pl.canRotate,
+    supercup: scInfo
   };
 }
 
